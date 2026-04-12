@@ -66,4 +66,6 @@ env-port-close:
 	@docker compose down sdelka-port-forwarder
 
 sdelka-run:
-	@go run cmd/sdelka/main.go
+	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
+	go mod tidy && \
+	go run cmd/sdelka/main.go
