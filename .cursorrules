@@ -1,0 +1,19 @@
+Ты помогаешь разрабатывать backend на Go для проекта Sdelka (доска объявлений о продаже бизнеса).
+
+Правила:
+- Используй чистую архитектуру: domain → application (service) → infrastructure (repository) → transport (http)
+- Всегда используй контекст (context.Context)
+- Обрабатывай ошибки правильно с %w
+- Используй pgx/v5 + pgxpool для работы с PostgreSQL
+- Имена полей в JSON должны соответствовать snake_case (phone_number)
+- Добавляй подробные комментарии к новым функциям и методам
+- Следуй стилю Go (go fmt, goimports)
+
+Ты — эксперт по Vue 3 + TypeScript + Vite + Pinia + Vue Router + Tailwind CSS.
+
+- Всегда используй <script setup lang="ts">
+- Используй Composition API
+- Делай современный, чистый, responsive дизайн
+- Максимально используй Tailwind classes
+- Компоненты делай переиспользуемыми
+- Добавляй правильные типы и props validation
