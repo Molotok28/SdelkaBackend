@@ -29,6 +29,11 @@ func (r *ApiVersionRouter) RegisterRoutes(routes ...Route) {
 	for _, route := range routes {
 		pattern := fmt.Sprintf("%s %s", route.Method, route.Path)
 
-		r.Handle(pattern, route.Handler)
+		var handler http.Handler = route.Handler
+		for i := len(route.Middleware) - 1; i >= 0; i-- {
+			handler = route.Middleware[i](handler)
+		}
+
+		r.Handle(pattern, handler)
 	}
 }

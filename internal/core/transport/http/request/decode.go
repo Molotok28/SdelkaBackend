@@ -10,13 +10,15 @@ import (
 
 var requestValidator = validator.New()
 
+// DecodeAndValidateRequest декодирует JSON-тело запроса в dest и валидирует его по тегам validate.
+// Возвращает ошибку, если декодирование или валидация не прошли.
 func DecodeAndValidateRequest(r *http.Request, dest any) error {
 	if err := json.NewDecoder(r.Body).Decode(dest); err != nil {
-		fmt.Println("Failed to decode request body:", err)
+		return fmt.Errorf("decode request body: %w", err)
 	}
 
 	if err := requestValidator.Struct(dest); err != nil {
-		fmt.Println("Failed to validate request body:", err)
+		return fmt.Errorf("validate request body: %w", err)
 	}
 
 	return nil

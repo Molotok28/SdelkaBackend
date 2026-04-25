@@ -42,6 +42,13 @@ func (h *HTTPServer) RegisterAPIRouters(routers ...*ApiVersionRouter) {
 	}
 }
 
+// RegisterStaticDir раздаёт статические файлы из директории dir по пути «/».
+// API-маршруты (зарегистрированные через RegisterAPIRouters) имеют более
+// высокий приоритет и перехватываются раньше.
+func (h *HTTPServer) RegisterStaticDir(dir string) {
+	h.mux.Handle("/", http.FileServer(http.Dir(dir)))
+}
+
 func (h *HTTPServer) Run(ctx context.Context) error {
 	mux := core_http_middleware.ChainMiddleware(h.mux, h.middleware...)
 

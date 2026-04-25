@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Сделка — Продажа бизнеса</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --red: #ef4444;
+      --red-hover: #dc2626;
+      --green: #16a34a;
+      --radius: 10px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .header-user { font-size: 14px; opacity: .9; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px; border: none;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+      transition: background .15s, opacity .15s; white-space: nowrap;
+    }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-white { background: #fff; color: var(--primary); }
+    .btn-white:hover:not(:disabled) { background: #eff6ff; }
+    .btn-outline { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.5); }
+    .btn-outline:hover:not(:disabled) { background: rgba(255,255,255,.12); }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover:not(:disabled) { background: var(--red-hover); }
+    .btn-ghost { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); }
+    .btn-ghost:hover:not(:disabled) { background: var(--bg); color: var(--text); }
+    .btn-sm { padding: 5px 12px; font-size: 13px; }
+
+    /* ── Layout ── */
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 32px 0 72px; }
+
+    /* ── Banner ── */
+    .banner {
+      background: var(--primary);
+      color: #fff;
+      padding: 48px 24px;
+      text-align: center;
+    }
+    .banner-title { font-size: 30px; font-weight: 700; margin-bottom: 10px; }
+    .banner-sub { font-size: 16px; opacity: .85; margin-bottom: 28px; }
+    .banner-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .toolbar-title { font-size: 22px; font-weight: 700; }
+    .toolbar-meta { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── Ads Grid ── */
+    .ads-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── Ad Card ── */
+    .ad-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 20px;
+      display: flex; flex-direction: column; gap: 10px;
+      transition: border-color .15s;
+    }
+    .ad-card:hover { border-color: #bfdbfe; }
+    .ad-price { font-size: 22px; font-weight: 700; color: var(--primary); }
+    .ad-title { font-size: 16px; font-weight: 600; line-height: 1.35; }
+    .ad-description {
+      font-size: 14px; color: var(--text-muted); line-height: 1.55;
+      display: -webkit-box; -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .ad-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13px; color: var(--text-muted);
+      padding-top: 10px; border-top: 1px solid var(--border); margin-top: auto;
+    }
+    .ad-own-badge { color: var(--primary); font-weight: 600; }
+    .ad-actions { display: flex; gap: 8px; padding-top: 4px; }
+
+    /* ── Empty state ── */
+    .empty {
+      grid-column: 1 / -1; text-align: center;
+      padding: 80px 0; color: var(--text-muted);
+    }
+    .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+    .empty-text { font-size: 14px; }
+
+    /* ── Load more ── */
+    .load-more { margin-top: 32px; text-align: center; }
+
+    /* ── Modal ── */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,.55);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; padding: 16px; backdrop-filter: blur(3px);
+    }
+    .overlay.hidden { display: none; }
+    .modal {
+      background: var(--card); border-radius: 14px;
+      width: 100%; max-width: 440px; padding: 28px; position: relative;
+    }
+    .modal-lg { max-width: 520px; }
+    .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-size: 22px; line-height: 1; padding: 4px;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 24px; }
+    .tab {
+      padding: 8px 18px; font-size: 15px; font-weight: 500; cursor: pointer;
+      border: none; background: none; color: var(--text-muted);
+      margin-bottom: -2px; border-bottom: 2px solid transparent;
+      transition: color .15s, border-color .15s;
+    }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .form-input {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 15px; color: var(--text);
+      background: var(--card); outline: none; transition: border-color .15s;
+      font-family: inherit;
+    }
+    .form-input:focus { border-color: var(--primary); }
+    textarea.form-input { resize: vertical; min-height: 110px; }
+    .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ── Alert ── */
+    .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 16px; }
+    .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+    /* ── Confirm dialog ── */
+    .confirm-body { font-size: 15px; line-height: 1.55; margin-bottom: 24px; }
+    .confirm-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ── Toast ── */
+    .toast-wrap {
+      position: fixed; bottom: 24px; right: 24px;
+      z-index: 300; display: flex; flex-direction: column; gap: 8px;
+    }
+    .toast {
+      padding: 12px 20px; border-radius: 10px; font-size: 14px;
+      font-weight: 500; color: #fff; max-width: 320px;
+      animation: slideIn .2s ease;
+    }
+    .toast-ok { background: var(--green); }
+    .toast-err { background: var(--red); }
+    @keyframes slideIn {
+      from { transform: translateX(110%); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border); border-top-color: var(--primary);
+      border-radius: 50%; animation: spin .7s linear infinite; margin: 48px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 580px) {
+      .ads-grid { grid-template-columns: 1fr; }
+      .banner-title { font-size: 22px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ Header ══ -->
+<header id="hdr"></header>
+
+<!-- ══ Banner (shown when logged out) ══ -->
+<div id="banner"></div>
+
+<!-- ══ Main content ══ -->
+<main>
+  <div class="container">
+    <div id="toolbar"></div>
+    <div id="ads-wrap"><div class="spinner"></div></div>
+    <div id="load-more"></div>
+  </div>
+</main>
+
+<!-- ══ Auth Modal ══ -->
+<div id="auth-ov" class="overlay hidden">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()">&#215;</button>
+    <div class="tabs">
+      <button class="tab" id="t-login"    onclick="setTab('login')">Войти</button>
+      <button class="tab" id="t-register" onclick="setTab('register')">Регистрация</button>
+    </div>
+    <div id="auth-body"></div>
+  </div>
+</div>
+
+<!-- ══ Ad Form Modal ══ -->
+<div id="ad-ov" class="overlay hidden">
+  <div class="modal modal-lg">
+    <button class="modal-close" onclick="closeAd()">&#215;</button>
+    <div id="ad-body"></div>
+  </div>
+</div>
+
+<!-- ══ Confirm Modal ══ -->
+<div id="confirm-ov" class="overlay hidden">
+  <div class="modal">
+    <p class="confirm-body" id="confirm-msg"></p>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Отмена</button>
+      <button class="btn btn-danger" id="confirm-ok">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Toasts ══ -->
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════════
+const S = {
+  user:   null,
+  ads:    [],
+  byId:   {},       // id → ad  (for edit modal)
+  total:  0,
+  offset: 0,
+  limit:  12,
+  loading: false,
+  tab:    'login',
+};
+
+// ════════════════════════════════════════════════════════════════
+//  API
+// ════════════════════════════════════════════════════════════════
+async function req(method, path, body) {
+  const opts = { method, credentials: 'same-origin', headers: {} };
+  if (body !== undefined) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
+  const r = await fetch('/api/v1' + path, opts);
+  let data = null;
+  try { data = await r.json(); } catch (_) {}
+  return { ok: r.ok, status: r.status, data };
+}
+
+const API = {
+  get:    p     => req('GET',    p),
+  post:   (p,b) => req('POST',   p, b),
+  put:    (p,b) => req('PUT',    p, b),
+  delete: p     => req('DELETE', p),
+};
+
+// ════════════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════════════
+const fmtPrice = v =>
+  new Intl.NumberFormat('ru-RU', { style:'currency', currency:'RUB', maximumFractionDigits:0 }).format(v);
+
+const fmtDate = s =>
+  new Date(s).toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function toast(msg, err = false) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + (err ? 'toast-err' : 'toast-ok');
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+function alertHtml(msg) {
+  return `<div class="alert alert-error">${esc(msg)}</div>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  RENDER: HEADER
+// ════════════════════════════════════════════════════════════════
+function renderHeader() {
+  const u = S.user;
+  document.getElementById('hdr').innerHTML = `
+    <span class="logo">Сделка</span>
+    <div class="header-right">
+      ${u
+        ? `<span class="header-user">${esc(u.name)} ${esc(u.surname)}</span>
+           <button class="btn btn-outline" onclick="doLogout()">Выйти</button>`
+        : `<button class="btn btn-outline" onclick="openAuth('login')">Войти</button>
+           <button class="btn btn-white"   onclick="openAuth('register')">Регистрация</button>`}
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  RENDER: BANNER
+// ════════════════════════════════════════════════════════════════
+function renderBanner() {
+  document.getElementById('banner').innerHTML = S.user ? '' : `
+    <div class="banner">
+      <div class="banner-title">Доска объявлений о продаже бизнеса</div>
+      <div class="banner-sub">Найдите готовый бизнес или разместите своё предложение</div>
+      <div class="banner-actions">
+        <button class="btn btn-white"   onclick="openAuth('register')">Разместить объявление</button>
+        <button class="btn btn-outline" onclick="openAuth('login')">Войти в аккаунт</button>
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  RENDER: TOOLBAR
+// ════════════════════════════════════════════════════════════════
+function renderToolbar() {
+  document.getElementById('toolbar').innerHTML = `
+    <div class="toolbar">
+      <div>
+        <div class="toolbar-title">Объявления</div>
+        ${S.total > 0 ? `<div class="toolbar-meta">${S.total} объявлений</div>` : ''}
+      </div>
+      ${S.user
+        ? `<button class="btn btn-primary" onclick="openAd()">+ Разместить</button>`
+        : ''}
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  RENDER: ADS
+// ════════════════════════════════════════════════════════════════
+function renderAds() {
+  const wrap = document.getElementById('ads-wrap');
+
+  if (S.loading && S.ads.length === 0) {
+    wrap.innerHTML = '<div class="spinner"></div>';
+    return;
+  }
+
+  if (S.ads.length === 0) {
+    wrap.innerHTML = `
+      <div class="ads-grid">
+        <div class="empty">
+          <div class="empty-title">Пока нет объявлений</div>
+          <div class="empty-text">${S.user
+            ? 'Нажмите «Разместить», чтобы добавить первое'
+            : 'Войдите, чтобы разместить объявление'}</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  S.byId = {};
+  S.ads.forEach(a => S.byId[a.id] = a);
+
+  wrap.innerHTML = `
+    <div class="ads-grid">
+      ${S.ads.map(adCard).join('')}
+    </div>`;
+}
+
+function adCard(ad) {
+  const isOwn = S.user && S.user.id === ad.user_id;
+  return `
+    <div class="ad-card">
+      <div class="ad-price">${fmtPrice(ad.price)}</div>
+      <div class="ad-title">${esc(ad.title)}</div>
+      <div class="ad-description">${esc(ad.description)}</div>
+      <div class="ad-footer">
+        <span>${fmtDate(ad.created_at)}</span>
+        ${isOwn ? '<span class="ad-own-badge">Моё</span>' : ''}
+      </div>
+      ${isOwn ? `
+        <div class="ad-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openAd(${ad.id})">Редактировать</button>
+          <button class="btn btn-danger btn-sm" onclick="askDelete(${ad.id})">Удалить</button>
+        </div>` : ''}
+    </div>`;
+}
+
+function renderLoadMore() {
+  document.getElementById('load-more').innerHTML =
+    S.ads.length >= S.total ? '' : `
+      <div class="load-more">
+        <button class="btn btn-ghost" onclick="loadMore()" ${S.loading ? 'disabled' : ''}>
+          ${S.loading ? 'Загрузка...' : 'Загрузить ещё'}
+        </button>
+      </div>`;
+}
+
+function renderAll() {
+  renderHeader();
+  renderBanner();
+  renderToolbar();
+  renderAds();
+  renderLoadMore();
+}
+
+// ════════════════════════════════════════════════════════════════
+//  AUTH MODAL
+// ════════════════════════════════════════════════════════════════
+function openAuth(tab = 'login') {
+  S.tab = tab;
+  document.getElementById('auth-ov').classList.remove('hidden');
+  renderAuthModal();
+}
+
+function closeAuth() {
+  document.getElementById('auth-ov').classList.add('hidden');
+}
+
+function setTab(tab) {
+  S.tab = tab;
+  renderAuthModal();
+}
+
+function renderAuthModal() {
+  document.getElementById('t-login').classList.toggle('active', S.tab === 'login');
+  document.getElementById('t-register').classList.toggle('active', S.tab === 'register');
+
+  const body = document.getElementById('auth-body');
+
+  if (S.tab === 'login') {
+    body.innerHTML = `
+      <div id="a-alert"></div>
+      <form onsubmit="doLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Номер телефона</label>
+          <input class="form-input" type="tel" id="l-phone" placeholder="+79001234567" required autocomplete="tel">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Пароль</label>
+          <input class="form-input" type="password" id="l-pass" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:4px" id="l-btn">Войти</button>
+      </form>
+      <p style="text-align:center;margin-top:16px;font-size:14px;color:var(--text-muted)">
+        Нет аккаунта?
+        <a href="#" onclick="setTab('register');return false" style="color:var(--primary)">Зарегистрироваться</a>
+      </p>`;
+  } else {
+    body.innerHTML = `
+      <div id="a-alert"></div>
+      <form onsubmit="doRegister(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Имя</label>
+            <input class="form-input" type="text" id="r-name" placeholder="Иван" required autocomplete="given-name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Фамилия</label>
+            <input class="form-input" type="text" id="r-surname" placeholder="Иванов" required autocomplete="family-name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Номер телефона</label>
+          <input class="form-input" type="tel" id="r-phone" placeholder="+79001234567" required autocomplete="tel">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Пароль</label>
+          <input class="form-input" type="password" id="r-pass" placeholder="Минимум 8 символов" required autocomplete="new-password">
+          <div class="form-hint">Минимум 8 символов</div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:4px" id="r-btn">Зарегистрироваться</button>
+      </form>
+      <p style="text-align:center;margin-top:16px;font-size:14px;color:var(--text-muted)">
+        Уже есть аккаунт?
+        <a href="#" onclick="setTab('login');return false" style="color:var(--primary)">Войти</a>
+      </p>`;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  AD FORM MODAL
+// ════════════════════════════════════════════════════════════════
+function openAd(id = null) {
+  document.getElementById('ad-ov').classList.remove('hidden');
+  const ad = id !== null ? S.byId[id] : null;
+  renderAdModal(ad);
+}
+
+function closeAd() {
+  document.getElementById('ad-ov').classList.add('hidden');
+}
+
+function renderAdModal(ad) {
+  const edit = !!ad;
+  document.getElementById('ad-body').innerHTML = `
+    <div class="modal-title">${edit ? 'Редактировать объявление' : 'Новое объявление'}</div>
+    <div id="ad-alert"></div>
+    <form onsubmit="${edit ? `doUpdate(event,${ad.id})` : 'doCreate(event)'}">
+      <div class="form-group">
+        <label class="form-label">Название</label>
+        <input class="form-input" type="text" id="f-title"
+          placeholder="Например: Продаю кофейню в центре города"
+          value="${edit ? esc(ad.title) : ''}" required>
+        <div class="form-hint">От 5 до 200 символов</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Описание</label>
+        <textarea class="form-input" id="f-desc"
+          placeholder="Опишите бизнес: что входит в продажу, причину продажи, особенности..."
+          required>${edit ? esc(ad.description) : ''}</textarea>
+        <div class="form-hint">От 10 до 1000 символов</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Цена (₽)</label>
+        <input class="form-input" type="number" id="f-price"
+          placeholder="1500000" min="0" step="1000"
+          value="${edit ? ad.price : ''}" required>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button type="button" class="btn btn-ghost" onclick="closeAd()" style="flex:1">Отмена</button>
+        <button type="submit" class="btn btn-primary" id="f-btn" style="flex:2">
+          ${edit ? 'Сохранить изменения' : 'Разместить'}
+        </button>
+      </div>
+    </form>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  CONFIRM MODAL
+// ════════════════════════════════════════════════════════════════
+function askDelete(id) {
+  document.getElementById('confirm-msg').textContent =
+    'Вы уверены, что хотите удалить это объявление? Действие нельзя отменить.';
+  document.getElementById('confirm-ov').classList.remove('hidden');
+  document.getElementById('confirm-ok').onclick = () => { closeConfirm(); doDelete(id); };
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-ov').classList.add('hidden');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  ACTIONS: ADS
+// ════════════════════════════════════════════════════════════════
+async function fetchAds(reset = false) {
+  if (reset) { S.ads = []; S.offset = 0; }
+  S.loading = true;
+  renderAds();
+
+  const { ok, data } = await API.get(`/ads?limit=${S.limit}&offset=${S.offset}`);
+  S.loading = false;
+
+  if (ok && data) {
+    const items = data.items || [];
+    S.ads    = reset ? items : [...S.ads, ...items];
+    S.total  = data.total  ?? 0;
+    S.offset = S.ads.length;
+  }
+
+  renderToolbar();
+  renderAds();
+  renderLoadMore();
+}
+
+async function loadMore() { await fetchAds(false); }
+
+async function doCreate(e) {
+  e.preventDefault();
+  const btn = document.getElementById('f-btn');
+  btn.disabled = true; btn.textContent = 'Размещаю...';
+
+  const { ok, data } = await API.post('/ads', {
+    title:       document.getElementById('f-title').value.trim(),
+    description: document.getElementById('f-desc').value.trim(),
+    price:       parseFloat(document.getElementById('f-price').value) || 0,
+  });
+
+  if (ok) {
+    closeAd(); toast('Объявление размещено!');
+    await fetchAds(true);
+  } else {
+    document.getElementById('ad-alert').innerHTML = alertHtml(data?.error || 'Ошибка');
+    btn.disabled = false; btn.textContent = 'Разместить';
+  }
+}
+
+async function doUpdate(e, id) {
+  e.preventDefault();
+  const btn = document.getElementById('f-btn');
+  btn.disabled = true; btn.textContent = 'Сохраняю...';
+
+  const { ok, data } = await API.put(`/ads/${id}`, {
+    title:       document.getElementById('f-title').value.trim(),
+    description: document.getElementById('f-desc').value.trim(),
+    price:       parseFloat(document.getElementById('f-price').value) || 0,
+  });
+
+  if (ok) {
+    closeAd(); toast('Объявление обновлено!');
+    await fetchAds(true);
+  } else {
+    document.getElementById('ad-alert').innerHTML = alertHtml(data?.error || 'Ошибка');
+    btn.disabled = false; btn.textContent = 'Сохранить изменения';
+  }
+}
+
+async function doDelete(id) {
+  const { ok } = await API.delete(`/ads/${id}`);
+  if (ok) { toast('Объявление удалено'); await fetchAds(true); }
+  else toast('Ошибка при удалении', true);
+}
+
+// ════════════════════════════════════════════════════════════════
+//  ACTIONS: AUTH
+// ════════════════════════════════════════════════════════════════
+async function doLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('l-btn');
+  btn.disabled = true; btn.textContent = 'Вхожу...';
+
+  const { ok, data } = await API.post('/auth/login', {
+    phone_number: document.getElementById('l-phone').value.trim(),
+    password:     document.getElementById('l-pass').value,
+  });
+
+  if (ok) {
+    await loadCurrentUser();
+    closeAuth(); toast('Добро пожаловать!');
+    renderAll();
+  } else {
+    document.getElementById('a-alert').innerHTML = alertHtml(data?.error || 'Неверный телефон или пароль');
+    btn.disabled = false; btn.textContent = 'Войти';
+  }
+}
+
+async function doRegister(e) {
+  e.preventDefault();
+  const btn = document.getElementById('r-btn');
+  btn.disabled = true; btn.textContent = 'Регистрирую...';
+
+  const phone = document.getElementById('r-phone').value.trim();
+  const pass  = document.getElementById('r-pass').value;
+
+  const { ok, data } = await API.post('/auth/register', {
+    name:         document.getElementById('r-name').value.trim(),
+    surname:      document.getElementById('r-surname').value.trim(),
+    phone_number: phone,
+    password:     pass,
+  });
+
+  if (ok) {
+    // Автоматический вход после регистрации
+    const login = await API.post('/auth/login', { phone_number: phone, password: pass });
+    if (login.ok) await loadCurrentUser();
+    closeAuth(); toast('Регистрация прошла успешно!');
+    renderAll();
+  } else {
+    document.getElementById('a-alert').innerHTML = alertHtml(data?.error || 'Ошибка регистрации');
+    btn.disabled = false; btn.textContent = 'Зарегистрироваться';
+  }
+}
+
+async function doLogout() {
+  await API.post('/auth/logout');
+  S.user = null;
+  toast('Вы вышли из аккаунта');
+  renderAll();
+}
+
+async function loadCurrentUser() {
+  const { ok, data } = await API.get('/auth/me');
+  S.user = ok && data ? data : null;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  CLOSE ON OVERLAY CLICK
+// ════════════════════════════════════════════════════════════════
+['auth-ov','ad-ov','confirm-ov'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target === e.currentTarget) {
+      if (id === 'auth-ov')    closeAuth();
+      if (id === 'ad-ov')      closeAd();
+      if (id === 'confirm-ov') closeConfirm();
+    }
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════════
+(async function init() {
+  renderHeader(); renderBanner(); renderToolbar();
+  await Promise.all([loadCurrentUser(), fetchAds(true)]);
+  renderAll();
+})();
+</script>
+</body>
+</html>

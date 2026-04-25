@@ -11,18 +11,27 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// contextKey — непубличный тип для ключа контекста логгера, исключает коллизии с другими пакетами.
+type contextKey struct{}
+
 type Logger struct {
 	*zap.Logger
 
 	file *os.File
 }
 
+// FromContext извлекает логгер из контекста. Паникует, если логгер не был добавлен через WithContext.
 func FromContext(ctx context.Context) *Logger {
-	log, ok := ctx.Value("log").(*Logger)
+	log, ok := ctx.Value(contextKey{}).(*Logger)
 	if !ok {
 		panic("no logger in context")
 	}
 	return log
+}
+
+// WithContext добавляет логгер в контекст.
+func WithContext(ctx context.Context, l *Logger) context.Context {
+	return context.WithValue(ctx, contextKey{}, l)
 }
 
 func NewLogger(config Config) (*Logger, error) {
@@ -34,7 +43,8 @@ func NewLogger(config Config) (*Logger, error) {
 		return nil, fmt.Errorf("mkdir log folder: %w", err)
 	}
 
-	timestamp := time.Now().UTC().Format("2026-01-02T15-04-05.000000")
+	// Go time format: эталонное время 2006-01-02T15:04:05
+	timestamp := time.Now().UTC().Format("2006-01-02T15-04-05.000000")
 	logFilePath := filepath.Join(
 		config.Folder,
 		fmt.Sprintf("%s.log", timestamp),
@@ -45,7 +55,7 @@ func NewLogger(config Config) (*Logger, error) {
 	}
 
 	zapConfig := zap.NewDevelopmentEncoderConfig()
-	zapConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2026-01-02T15:04:05.000000")
+	zapConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02T15:04:05.000000")
 
 	zapEncoder := zapcore.NewConsoleEncoder(zapConfig)
 

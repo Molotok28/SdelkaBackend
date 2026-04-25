@@ -6,7 +6,7 @@ CREATE TABLE sdelka.users
     id           SERIAL PRIMARY KEY,
     version      BIGINT       NOT NULL DEFAULT 1,
     name         VARCHAR(100) NOT NULL CHECK (char_length(name) between 3 and 100),
-    surname         VARCHAR(100) NOT NULL CHECK (char_length(name) between 3 and 100),
+    surname         VARCHAR(100) NOT NULL CHECK (char_length(surname) between 3 and 100),
     phone_number VARCHAR(15) CHECK (
         phone_number ~ '^\+?[1-9]\d{1,14}$' AND
         char_length (phone_number) between 10 and 15
